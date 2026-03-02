@@ -1,0 +1,32 @@
+name: Quarterly Argentina PIT Bands
+
+on:
+  schedule:
+    # Runs at 06:00 UTC on the 1st of January, April, July, and October
+    - cron: "0 6 1 1,4,7,10 *"
+  workflow_dispatch:
+
+jobs:
+  fetch-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch Argentina PIT bands and append to OneDrive
+        env:
+          MS_TENANT_ID: ${{ secrets.MS_TENANT_ID }}
+          MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
+          MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
+        run: python scripts/fetch_ar_pit_bands.py
